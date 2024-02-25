@@ -1,0 +1,13 @@
+/build/
+/devel/
+/logs/
+/src/ackermann_msgs/
+/src/gazebo_ros_pkgs/
+/src/geometry2/
+/src/hector_gazebo/
+/src/hector_models/
+/src/jsk_visualization/
+/src/ros_control/
+/src/ros_controllers/
+/src/velodyne_simulator/
+/.catkin_tools/

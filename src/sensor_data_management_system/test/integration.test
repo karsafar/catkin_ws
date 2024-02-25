@@ -1,0 +1,14 @@
+<launch>
+    <!-- Launch gem_navigation_node -->
+    <node pkg="gem_navigation" type="gem_navigation_node" name="navigation_task_planner" output="screen" cwd="node">
+        <!--< rosparam file="$(find polaris_gem_drivers_sim)/config/gem_navigation_params.yaml" command="load" /> -->
+    </node>
+
+    <!-- Launch sensor_data_manager_node -->
+    <node pkg="sensor_data_management_system" type="sensor_data_management_system_node" name="sensor_data_manegement_node" output="screen" cwd="node">
+        <!--<rosparam file="$(find sensor_data_management_system)/config/sensor_data_manager_params.yaml" command="load" /> -->
+    </node>
+
+    <!-- Test case -->
+    <test test-name="temperature_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system-test" time-limit="60"/>
+</launch>
