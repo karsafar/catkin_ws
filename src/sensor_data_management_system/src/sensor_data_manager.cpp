@@ -34,8 +34,42 @@ private:
     int check_internet_time_mode = 1;
 };
 
+void SensorDataManager::temp_callback(const std_msgs::Int32::ConstPtr& temp_msg) {
+
+    if (temp_msg->data > 80 || temp_msg->data < 0){
+        ROS_ERROR_STREAM("Temperature -  " << temp_msg->data << ".The temperature range is outside the sensor range [0, 80]./n ERROR STATE");
+        gem_navigation::StringStamped car_status;
+        car_status.data = "ERROR";
+        car_status_pub.publish(car_status);
+    }
+    else if (temp_msg->data >= 55)
+    {
+        ROS_ERROR_STREAM("Temperature -  " << temp_msg->data << "C.Temperature is greater than or equal to 55./n ERROR STATE");
+        gem_navigation::StringStamped car_status;
+        car_status.header.stamp = ros::Time::now();
+        car_status.data = "ERROR";
+
+        car_status_pub.publish(car_status);
+    }
+    else 
+    {
+        ROS_WARN_STREAM("Temperature -  " << temp_msg->data << "C.Temperature is less than 55./n RUNNING STATE");
+        gem_navigation::StringStamped car_status;
+        car_status.header.stamp = ros::Time::now();
+        car_status.data = "RUNNING";
+
+        car_status_pub.publish(car_status); 
+    }
+}
+
 void SensorDataManager::battery_callback(const std_msgs::Int32::ConstPtr& battery_msg) {
-    if (battery_msg->data <= 50)
+    if (battery_msg->data > 100 || battery_msg->data < 0){
+        ROS_ERROR_STREAM("Battery Level -  " << battery_msg->data << ".The Battery charge range is outside the sensor range [0, 100]./nERROR STATE");
+        gem_navigation::StringStamped car_status;
+        car_status.data = "ERROR";
+        car_status_pub.publish(car_status);
+    }
+    else if (battery_msg->data <= 50)
     {
         ROS_ERROR_STREAM("Battery Level -  " << battery_msg->data << ".Battery is less than or equal to 50./nERROR STATE");
         gem_navigation::StringStamped car_status;
@@ -55,7 +89,13 @@ void SensorDataManager::battery_callback(const std_msgs::Int32::ConstPtr& batter
 }
 
 void SensorDataManager::gps_callback(const std_msgs::Int32::ConstPtr& gps_msg) {
-    if (gps_msg->data >= 200)
+    if (gps_msg->data > 1000 || gps_msg->data < 0){
+        ROS_ERROR_STREAM("GPS ACCURACY -  " << gps_msg->data << ".The GPS accuracy is outside the sensor range [0, 1000]./n ERROR STATE");
+        gem_navigation::StringStamped car_status;
+        car_status.data = "ERROR";
+        car_status_pub.publish(car_status);
+    }
+    else if (gps_msg->data >= 200)
     {
         if (check_gps_time == 0)
         {
@@ -98,7 +138,7 @@ void SensorDataManager::internet_callback(const std_msgs::Int32::ConstPtr& inter
     {
         if (check_internet_time == 0)
         {
-            start_gps = std::chrono::system_clock::now();
+            start_internet = std::chrono::system_clock::now();
         }
         check_internet_time = 1;
         check_internet_time_mode = internet_msg->data;
@@ -110,15 +150,15 @@ void SensorDataManager::internet_callback(const std_msgs::Int32::ConstPtr& inter
 
     if (check_internet_time == 1)
     {
-        end_gps = std::chrono::system_clock::now();
-        std::chrono::duration<double> seconds_elapsed = end_gps - start_gps;
+        end_internet = std::chrono::system_clock::now();
+        std::chrono::duration<double> seconds_elapsed = end_internet - start_internet;
         ROS_INFO_STREAM("CHECKING TIME - " << seconds_elapsed.count());
 
         if (check_internet_time_mode == 0)
         {
             if (seconds_elapsed.count() >= 10)
             {
-                ROS_ERROR_STREAM("Internet not connected for 10s./nERROR STATE");
+                ROS_ERROR_STREAM("Internet not connected for 10s./n ERROR STATE");
                 gem_navigation::StringStamped car_status;
                 car_status.header.stamp = ros::Time::now();
                 car_status.data = "ERROR";
@@ -126,12 +166,11 @@ void SensorDataManager::internet_callback(const std_msgs::Int32::ConstPtr& inter
                 car_status_pub.publish(car_status);
             }
         }
-        
         if (check_internet_time_mode == 2)
         {
             if (seconds_elapsed.count() >= 20)
             {
-                ROS_ERROR_STREAM("Internet low for 20s./nERROR STATE");
+                ROS_ERROR_STREAM("Internet low for 20s./n ERROR STATE");
                 gem_navigation::StringStamped car_status;
                 car_status.header.stamp = ros::Time::now();
                 car_status.data = "ERROR";
@@ -142,27 +181,8 @@ void SensorDataManager::internet_callback(const std_msgs::Int32::ConstPtr& inter
     }
     else 
     {
-        gem_navigation::StringStamped car_status;
-        car_status.header.stamp = ros::Time::now();
-        car_status.data = "RUNNING";
 
-        car_status_pub.publish(car_status); 
-    }
-}
-
-void SensorDataManager::temp_callback(const std_msgs::Int32::ConstPtr& temp_msg) {
-    if (temp_msg->data >= 55)
-    {
-        ROS_ERROR_STREAM("Temperature -  " << temp_msg->data << "C.Temperature is greater than or equal to 55./n ERROR STATE");
-        gem_navigation::StringStamped car_status;
-        car_status.header.stamp = ros::Time::now();
-        car_status.data = "ERROR";
-
-        car_status_pub.publish(car_status);
-    }
-    else 
-    {
-        ROS_WARN_STREAM("Temperature -  " << temp_msg->data << "C.Temperature is less than 55./n RUNNING STATE");
+        ROS_WARN_STREAM("Stable connection./nRUNNING STATE");
         gem_navigation::StringStamped car_status;
         car_status.header.stamp = ros::Time::now();
         car_status.data = "RUNNING";
@@ -174,7 +194,7 @@ void SensorDataManager::temp_callback(const std_msgs::Int32::ConstPtr& temp_msg)
 void SensorDataManager::emerg_callback(const std_msgs::Bool::ConstPtr& emerg_msg){
         if (emerg_msg->data == true)
     {
-        ROS_ERROR_STREAM("Emergency status -  " << emerg_msg->data << ".Emergency button is pressed./nERROR STATE");
+        ROS_ERROR_STREAM("Emergency status -  " << static_cast<int>(emerg_msg->data) << ". Emergency button is pressed./nERROR STATE");
         gem_navigation::StringStamped car_status;
         car_status.header.stamp = ros::Time::now();
         car_status.data = "ERROR";

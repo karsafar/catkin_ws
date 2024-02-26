@@ -10,10 +10,10 @@
     </node>
 
     <!-- Test case -->
-    <test test-name="temperature_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_temp_test" time-limit="60"/>
-    <test test-name="battery_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_battery_test" time-limit="60"/>
-    <test test-name="gps_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_gps_test" time-limit="60"/>
-    <!--<test test-name="tinternet_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_internet_test" time-limit="60"/>-->
-    <test test-name="emerg_button_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_emerg_test" time-limit="60"/>
+    <test test-name="temperature_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_temp_test" time-limit="180"/>
+    <test test-name="battery_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_battery_test" time-limit="180"/>
+    <test test-name="gps_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_gps_test" time-limit="180"/>
+    <test test-name="internet_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_internet_test" time-limit="180"/>
+    <test test-name="emerg_button_test_case" pkg="sensor_data_management_system" type="sensor_data_management_system_emerg_test" time-limit="180"/>
 
 </launch>

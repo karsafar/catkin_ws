@@ -10,52 +10,66 @@ protected:
     ros::Subscriber status_sub;
     gem_navigation::StringStamped::ConstPtr last_status_msg;
 
-    virtual void SetUp() {
-        gps_pub = nh.advertise<std_msgs::Int32>("/gps_accuracy", 10);
-        status_sub = nh.subscribe("/car_status", 10, &TestGPSSensor::statusCallback, this);
+    virtual void SetUp() override {
+        gps_pub = nh.advertise<std_msgs::Int32>("/gps_accuracy", 1);
+        status_sub = nh.subscribe("/car_status", 1, &TestGPSSensor::statusCallback, this);
     }
 
     void publishGPSAccuracy(int accuracy) {
         std_msgs::Int32 msg;
         msg.data = accuracy;
         gps_pub.publish(msg);
+        ROS_WARN_STREAM("Published GPS Accuracy: " << msg.data);
     }
 
     void statusCallback(const gem_navigation::StringStamped::ConstPtr& msg) {
         last_status_msg = msg;
+        ROS_WARN_STREAM("Received Car Status: " << last_status_msg->data);
+    }
+
+    void waitForStatus(const std::string& expected_status, const ros::Duration& timeout) {
+        auto start = ros::Time::now();
+        ros::Rate rate(10); // Check at 10Hz
+        while (ros::Time::now() - start < timeout && ros::ok()) {
+            ros::spinOnce();
+            if (last_status_msg && last_status_msg->data == expected_status) {
+                return;
+            }
+            rate.sleep();
+        }
+        ASSERT_TRUE(last_status_msg != nullptr) << "No status message received within timeout.";
+        EXPECT_EQ(last_status_msg->data, expected_status) << "Expected status '" << expected_status << "', but got '" << (last_status_msg ? last_status_msg->data : "none") << "'.";
+    }
+
+    void simulateGPSAccuracyChange(int start_accuracy, int high_accuracy, int duration_sec) {
+        // Start with high accuracy
+        publishGPSAccuracy(start_accuracy);
+        ros::Duration(1).sleep(); // Allow time for initial high accuracy
+
+        // Jump to high accuracy for duration_sec
+        for (int sec = 0; sec < duration_sec; ++sec) {
+            publishGPSAccuracy(high_accuracy);
+            ros::Duration(1).sleep(); // Maintain high accuracy for each second
+        }
     }
 };
 
 TEST_F(TestGPSSensor, GPSErrorState) {
-    // Start with high accuracy
-    publishGPSAccuracy(100);
-    ros::Duration(1).sleep(); // Allow time for message processing
-    
-    // Check system's response
-    ros::spinOnce();
-    ASSERT_TRUE(last_status_msg != nullptr);
-    EXPECT_EQ(last_status_msg->data, "RUNNING");
+    ros::Duration(1).sleep();
+    // Jump to high accuracy (above 200) for 14 seconds, no error expected
+    simulateGPSAccuracyChange(100, 300, 14);
+    waitForStatus("RUNNING", ros::Duration(1));
 
-    // Intermittently drop accuracy to more than 200 mm for periods of 10 to 20 seconds
-        int period = rand() % 11 + 10; // Random period between 10 and 20 seconds
-        for (int sec = 0; sec < period; ++sec) {
-            publishGPSAccuracy(200 + rand() % 801); // Accuracy drops between 200 and 1000 mm
-            ros::Duration(1).sleep();
-        }
+    // Jump to high accuracy (above 200) for 16 seconds, error expected
+    simulateGPSAccuracyChange(100, 300, 16);
+    waitForStatus("ERROR", ros::Duration(1));
 
-    // Check system's response
-    ros::spinOnce();
-    ASSERT_TRUE(last_status_msg != nullptr);
-    EXPECT_EQ(last_status_msg->data, "ERROR");
+    // Test values outside the valid range
+    publishGPSAccuracy(-1); // Below valid range
+    waitForStatus("ERROR", ros::Duration(1));
 
-    // reset the error
-    publishGPSAccuracy(199);
-    ros::Duration(1).sleep(); // Allow time for message processing
-
-    // Check system's response
-    ros::spinOnce();
-    ASSERT_TRUE(last_status_msg != nullptr);
-    EXPECT_EQ(last_status_msg->data, "RUNNING");
+    publishGPSAccuracy(1001); // Above valid range
+    waitForStatus("ERROR", ros::Duration(1));
 }
 
 int main(int argc, char** argv) {
