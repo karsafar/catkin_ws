@@ -203,11 +203,18 @@ if(CATKIN_ENABLE_TESTING)
 
   # Add your test executable
   # catkin_add_gtest(${PROJECT_NAME}-test test/test_temperature_sensor.cpp)
-  catkin_add_executable_with_gtest(${PROJECT_NAME}_temp_test test/test_temperature_sensor.cpp)
   catkin_add_executable_with_gtest(${PROJECT_NAME}_battery_test test/test_battery_sensor.cpp)
+  catkin_add_executable_with_gtest(${PROJECT_NAME}_temp_test test/test_temperature_sensor.cpp)
+  catkin_add_executable_with_gtest(${PROJECT_NAME}_gps_test test/test_gps_sensor.cpp)
+  # catkin_add_executable_with_gtest(${PROJECT_NAME}_internet_test test/test_internet.cpp)
+  catkin_add_executable_with_gtest(${PROJECT_NAME}_emerg_test test/test_emerg_stop.cpp)
+
   # Link your test executable with the necessary libraries
-  target_link_libraries(${PROJECT_NAME}_temp_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
   target_link_libraries(${PROJECT_NAME}_battery_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_temp_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_gps_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+  # target_link_libraries(${PROJECT_NAME}_internet_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
+  target_link_libraries(${PROJECT_NAME}_emerg_test ${catkin_LIBRARIES} ${GTEST_LIBRARIES})
 
   # If you have additional test files, add them in a similar way
   # catkin_add_gtest(another_test test/another_test_file.cpp)

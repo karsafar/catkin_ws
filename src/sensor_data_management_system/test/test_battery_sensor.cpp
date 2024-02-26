@@ -31,7 +31,7 @@ protected:
 TEST_F(TestBatterySensor, BatteryErrorState) {
     ros::Duration(1).sleep();
     publishBattery(49);
-    // ros::Duration(1).sleep(); // Simulate gradual increase
+    ros::Duration(1).sleep(); // Simulate gradual increase
     ros::spinOnce();
 
     // Check system's response at 49 percent
