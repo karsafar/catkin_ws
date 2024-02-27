@@ -44,7 +44,7 @@ protected:
 
 
 TEST_F(TestBatterySensor, BatteryErrorState) {
-    ros::Duration(1).sleep();
+    ros::Duration(5).sleep();
     // Gradually decrease from 100 to 51 percent over 30 seconds
     int start_battery = 100;
     int end_battery = 51;

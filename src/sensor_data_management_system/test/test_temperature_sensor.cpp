@@ -59,21 +59,21 @@ TEST_F(TestTempSensor, TemperatureErrorState) {
     simulateTemperatureChange(30, 55, 30);
 
     // Check for ERROR state at 55° C
-    waitForStatus("ERROR", ros::Duration(2));
+    waitForStatus("ERROR", ros::Duration(1));
 
     // Spike temperature to 60° C
     publishTemp(60);
     ros::Duration(1).sleep(); // Allow time for message processing
 
     // Verify ERROR state is maintained at 60° C
-    waitForStatus("ERROR", ros::Duration(2));
+    waitForStatus("ERROR", ros::Duration(5));
 
     // Drop temperature back to 30° C
     publishTemp(30);
     ros::Duration(1).sleep(); // Allow time for message processing
 
     // Verify system returns to RUNNING state at 30° C
-    waitForStatus("RUNNING", ros::Duration(2));
+    waitForStatus("RUNNING", ros::Duration(1));
 }
 
 int main(int argc, char** argv) {

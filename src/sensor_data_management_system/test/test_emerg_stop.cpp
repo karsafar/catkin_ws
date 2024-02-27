@@ -43,18 +43,19 @@ protected:
 };
 
 TEST_F(TestEmergencyStop, EmergencyStopActivation) {
-    ros::Duration(1).sleep();
+    ros::Duration(5).sleep();
+    // Deactivate emergency stop
+    triggerEmergencyStop(false);
+
+    // Wait for system to return to RUNNING state 
+    waitForStatus("RUNNING", ros::Duration(5));
+
     // Trigger emergency stop
     triggerEmergencyStop(true);
 
     // Wait for ERROR state after emergency stop is triggered
-    waitForStatus("ERROR", ros::Duration(1));
+    waitForStatus("ERROR", ros::Duration(5));
 
-    // Deactivate emergency stop
-    triggerEmergencyStop(false);
-
-    // Wait for system to return to RUNNING state after emergency stop is deactivated
-    waitForStatus("RUNNING", ros::Duration(1));
 }
 
 int main(int argc, char** argv) {

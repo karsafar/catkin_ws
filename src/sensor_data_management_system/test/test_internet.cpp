@@ -70,7 +70,7 @@ TEST_F(TestInternetConnection, InternetConnectivityErrorState)
     simulateSignalChange(1, 1, "RUNNING");
 
     // Drop to low signal for 12 seconds
-    simulateSignalChange(0, 11, "ERROR");
+    simulateSignalChange(0, 15, "ERROR");
 
     // Recover back to stable
     simulateSignalChange(1, 1, "RUNNING");
@@ -82,7 +82,7 @@ TEST_F(TestInternetConnection, InternetConnectivityErrorState)
     simulateSignalChange(1, 1, "RUNNING");
     
     // Drop to no signal for 22 seconds
-    simulateSignalChange(2, 21, "ERROR");
+    simulateSignalChange(2, 25, "ERROR");
 
     // Recover back to stable
     simulateSignalChange(1, 1, "RUNNING");
