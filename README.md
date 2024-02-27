@@ -28,7 +28,7 @@ You should see a car-like robot model simulated, equipped with a front laser, so
 
 The project is structured as follows within the `catkin_ws`:
 
-```
+~~~
 catkin_ws/
 └── src/
     ├── POLARIS_GEM_e2/
@@ -39,17 +39,24 @@ catkin_ws/
     │   │   └── gem_pure_pursuit_sim/
     │   │       └── scripts/
     │   │           └── pure_pursuit_sim.py
-    └── sensor_data_management_system/
-        ├── src/
-        │   └── sensor_data_manager.cpp
-        └── test/
-            ├── integration.test
-            ├── test_battery_sensor.cpp
-            ├── test_emerg_stop.cpp
-            ├── test_gps_sensor.cpp
-            ├── test_internet.cpp
-            └── test_temperature_sensor.cpp
-```
+    ├── sensor_data_management_system/
+    │   ├── src/
+    │   │   └── sensor_data_manager.cpp
+    │   └── test/
+    │       ├── integration.test
+    │       ├── test_battery_sensor.cpp
+    │       ├── test_emerg_stop.cpp
+    │       ├── test_gps_sensor.cpp
+    │       ├── test_internet.cpp
+    │       └── test_temperature_sensor.cpp
+    └── mock_sensor_data/
+        └── src/
+            ├── mock_battery_data.cpp
+            ├── mock_gps_data.cpp
+            ├── mock_internet_data.cpp
+            └── mock_temp_data.cpp
+~~~
+
 
 - `planner.cpp`: Path-tracking controller.
 - `pure_pursuit_sim.py`: Simulation script for pure pursuit path tracking.
@@ -69,8 +76,25 @@ A Dockerfile is provided to encapsulate the environment and dependencies require
 2. Run the Docker container:
 
    ```
-   docker run -it --rm ground_vehicles_cpp_project
+   docker run -it --net=host -e ROS_HOSTNAME=localhost     --env="DISPLAY"     --env="QT_X11_NO_MITSHM=1"     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw"     ground_vehicles_cpp_project     bash
+   
    ```
+
+3. Open new terminal and allow Docker to use the host machine’s X11 socket:
+ 
+   ```
+   xhost +
+  
+   ```
+4.  Use docker exec to get a shell inside the container:
+
+   ```
+    docker exec -it <container_id_or_name> bash
+
+  
+   ```
+
+
 
 This Docker setup ensures that all dependencies are met for running the simulation and the management system code.
 
