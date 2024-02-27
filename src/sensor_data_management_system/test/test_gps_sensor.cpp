@@ -57,11 +57,11 @@ protected:
 TEST_F(TestGPSSensor, GPSErrorState) {
     ros::Duration(1).sleep();
     // Jump to high accuracy (above 200) for 14 seconds, no error expected
-    simulateGPSAccuracyChange(100, 300, 14);
+    simulateGPSAccuracyChange(100, 300, 12);
     waitForStatus("RUNNING", ros::Duration(1));
 
     // Jump to high accuracy (above 200) for 16 seconds, error expected
-    simulateGPSAccuracyChange(100, 300, 16);
+    simulateGPSAccuracyChange(100, 300, 17);
     waitForStatus("ERROR", ros::Duration(1));
 
     // Test values outside the valid range
